@@ -19,12 +19,12 @@ Serial uart(D1,D0); //tx,rx
 DigitalOut redLED(LED1);
 DigitalOut greenLED(LED2);
 DigitalOut blueLED(LED3);
-
+Timer t;
 
 
 BBCar car(pin8, pin9, servo_ticker);
 
-Thread t;
+Thread t1;
 char* status_log;
 void send_log(){
     while(1){
@@ -39,15 +39,15 @@ int main(){
 
     encoder0.reset();
     encoder1.reset();    
-    t.start(send_log);
+    t1.start(send_log);
     redLED = 0;
     greenLED = 1;
     blueLED = 1;
-  
+ 
     car.goStraight(100);
     status_log = "go Straight";
     //xbee.printf("%s\r\n", status_log);
-    wait_ms(7579); // 106
+    wait_ms(7790); // 106
     car.stop();
     wait(0.5);
 
@@ -60,14 +60,14 @@ int main(){
     car.goStraight(100);
     status_log = "go Straight";
     //xbee.printf("%s\r\n", status_log);
-    wait_ms(2105); // 30
+    wait_ms(2456); // 30
     car.stop();
     wait(0.5);
 
     car.turn(100,0.1);
     status_log = "turn Left";
     //xbee.printf("%s\r\n", status_log);
-    wait_ms(1500);
+    wait_ms(1300);
     car.stop();
 
     //scan 
@@ -130,7 +130,7 @@ int main(){
     car.goStraight(100);
     status_log = "go Straight";
     //xbee.printf("%s\r\n", status_log);
-    wait_ms(3509); // 50
+    wait_ms(3719); // 53
     car.stop();
     wait(0.5);
 
@@ -146,7 +146,7 @@ int main(){
     car.goStraight(100);
     status_log = "go Straight";
     //xbee.printf("%s\r\n", status_log);
-    wait_ms(7229); //103
+    wait_ms(6667); //95
     car.stop();
     wait(0.5);
 
@@ -159,41 +159,116 @@ int main(){
     car.goStraight(100);
     status_log = "go Straight";
     //xbee.printf("%s\r\n", status_log);
-    wait_ms(2596); // 37
+    wait_ms(2456); // 30
     car.stop();
     wait(0.5);
 
-    car.turn(100,-0.3);
-    status_log = "Right U turn";
+    car.turn(100,-0.1);
+    status_log = "turn Right";
     //xbee.printf("%s\r\n", status_log);
-    wait_ms(5000);
+    wait_ms(1500);
     car.stop();
 
-
-    //scan
-    float k;
-    status_log = "Identify Item";
-     while(1){
-         if((float)ping1>10) redLED = 1;
-         else{
-             redLED = 0;
-             break;
-         }
-         wait(.01);
-     }
-    //xbee.printf("%s\r\n", status_log);
-
-    car.turn(100,-0.3);
-    status_log = "Right U turn";
-    //xbee.printf("%s\r\n", status_log);
-    wait_ms(5000);
-    car.stop();
-
+    wait(0.5);
 
     car.goStraight(100);
     status_log = "go Straight";
     //xbee.printf("%s\r\n", status_log);
-    wait_ms(3158); // 45
+    wait_ms(701); // 15
+    car.stop();
+    wait(0.5);
+
+    car.turn(100,-0.1);
+    status_log = "turn Right";
+    //xbee.printf("%s\r\n", status_log);
+    wait_ms(1500);
+    car.stop();
+
+    //scan
+    wait(2);
+    car.turn(80,-0.1);
+    status_log = "turn Right";
+    //xbee.printf("%s\r\n", status_log);
+    wait_ms(1000); //45
+    car.stop();
+    wait(1);
+    greenLED = 0;
+    car.turn(-80,-0.1);
+    status_log = "Scanning";
+    //xbee.printf("%s\r\n", status_log);
+    //wait_ms(1500); // rotate 90
+    t.start();
+
+    float k = 0,k_prev = 0, boundr = 0, boundl = 0, min = 100;
+    k = (float)ping1;
+    k_prev = k;
+    while(t.read()<1.5){
+        k = (float)ping1; 
+        if(k_prev-k > 20) boundr = k;
+        else if(k-k_prev > 20){
+            boundl = k_prev;
+
+        } 
+
+        else{
+            if(k < min){
+                min = k;
+            }
+        }
+        k_prev = k;
+        //xbee.printf(" boundr = %.4f\r\n boundl = %.4f\r\n min = %.4f\r\n", boundr, boundl, min);
+        wait(.01);
+    }
+    while(t.read()<1.5){
+        wait(0.1);
+    }
+    //xbee.printf(" boundr = %.4f\r\n boundl = %.4f\r\n min = %.4f\r\n", boundr, boundl, min);
+    if(fabs(boundl-boundr) < 5 && (fabs(boundr-min) < 0.5 || fabs(boundr-min) < 0.5)){
+        xbee.printf("The object is V shape.\r\n");
+    }
+    else if(fabs(boundl-min) < 5 && fabs(boundr-min) < 5){
+        xbee.printf("The object is Square.\r\n");
+    }
+    else if(boundr == 0 && boundl == 0){
+        xbee.printf("The object is Isosceles Triangle.\r\n");
+    }
+    else{
+        xbee.printf("The object is Right Triangle.\r\n");
+    }
+    car.stop();
+    wait(0.5);
+
+ 
+    car.turn(80,-0.1);
+    status_log = "turn Right";
+    //xbee.printf("%s\r\n", status_log);
+    wait_ms(1000); //45
+    car.stop();
+    wait(0.5);
+
+    car.turn(100,-0.1);
+    status_log = "turn Right";
+    //xbee.printf("%s\r\n", status_log);
+    wait_ms(1500);
+    car.stop();
+
+    car.goStraight(100);
+    status_log = "go Straight";
+    //xbee.printf("%s\r\n", status_log);
+    wait_ms(701); // 10
+    car.stop();
+    wait(0.5);
+
+    car.turn(100,-0.1);
+    status_log = "turn Right";
+    //xbee.printf("%s\r\n", status_log);
+    wait_ms(1500);
+    car.stop();
+
+    car.goStraight(100);
+    status_log = "go Straight";
+    //xbee.printf("%s\r\n", status_log);
+    wait_ms(3859); // 55
     car.stop();
     wait(0.5);
 

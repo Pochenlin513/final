@@ -43,7 +43,7 @@ mqttc.subscribe(topic, 0)
 
 while True:
     line = s.readline()
-    #print(line)
+    print(line)
     mqttc.publish(topic, line)
-    if line == "End"
+    if line == "End":
         break
