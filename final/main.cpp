@@ -171,6 +171,7 @@ int main(){
 
 
     //scan
+    float k;
     status_log = "Identify Item";
      while(1){
          if((float)ping1>10) redLED = 1;
