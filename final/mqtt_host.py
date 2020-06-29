@@ -15,14 +15,7 @@ def on_connect(self, mosq, obj, rc):
 
 def on_message(mosq, obj, msg):
     print("[Received] Topic: " + msg.topic + ", Message: " + str(msg.payload) + "\n");
-    if msg.topic == "AccX":
-        x.append(float(msg.payload))
-    elif msg.topic == "AccY":
-        y.append(float(msg.payload))
-    elif msg.topic == "AccZ":
-        z.append(float(msg.payload))
-    elif msg.topic == "tilt":
-        tilt.append(float(msg.payload))
+    
 def on_subscribe(mosq, obj, mid, granted_qos):
     print("Subscribed OK")
 
