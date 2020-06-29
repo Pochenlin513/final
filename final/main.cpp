@@ -195,7 +195,6 @@ int main(){
     greenLED = 0;
     car.turn(-80,-0.1);
     status_log = "Scanning";
-    //xbee.printf("%s\r\n", status_log);
     //wait_ms(1500); // rotate 90
     t.start();
 
@@ -216,7 +215,7 @@ int main(){
             }
         }
         k_prev = k;
-        //xbee.printf(" boundr = %.4f\r\n boundl = %.4f\r\n min = %.4f\r\n", boundr, boundl, min);
+
         wait(.01);
     }
     while(t.read()<1.5){
